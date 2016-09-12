@@ -387,6 +387,9 @@ class BaseBuilder {
      let nodekey = reasoner.node(key);
      if (val === null || val === undefined) {
        delete expanded[key];
+       if (typeof expanded[key] !== 'undefined') {
+         expanded[key] = null;
+       }
      } else {
        let is_iter = is_iterable(val);
        if (nodekey.is(owl.FunctionalProperty)) {
