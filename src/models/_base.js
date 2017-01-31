@@ -327,7 +327,7 @@ class Base {
      }
      return ()=> {
        let bld = new Builder(type);
-       bld[_expanded] = bld[_base][_expanded] = Object.create(tmpl);
+       bld[_expanded] = bld[_base][_expanded] = Object.assign({}, tmpl);
        models.compose_builder(bld, type);
        models.compose_base(bld[_base], type);
        return bld;
