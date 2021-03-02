@@ -29,19 +29,19 @@ function is_literal(item) {
 }
 
 function is_iterable(item) {
-  if (item === undefined) return false;
-  if (typeof item === 'string') return false;
-  if (item[_expanded] !== undefined) return false; // It's a Base obj
-  if (item instanceof LanguageValue) return false;
-  if (item instanceof LanguageValue.Builder) return false;
+  if (item === undefined) { return false; }
+  if (typeof item === 'string') { return false; }
+  if (item[_expanded] !== undefined) { return false; } // It's a Base obj
+  if (item instanceof LanguageValue) { return false; }
+  if (item instanceof LanguageValue.Builder) { return false; }
   return typeof item[Symbol.iterator] === 'function';
 }
 
 function convert(item) {
-  let type = item['@type'];
+  const type = item['@type'];
   let value = item['@value'];
   if (type) {
-    let node = reasoner.node(type);
+    const node = reasoner.node(type);
     if (node.is(asx.Number))
       value = Number(value);
     else if (node.is(xsd.duration))
@@ -49,7 +49,7 @@ function convert(item) {
     else if (node.is(asx.Date))
       value = moment(value);
     else if (node.is(asx.Boolean))
-      value = value != 'false';
+      value = value !== 'false';
   }
   return value;
 }
@@ -59,12 +59,13 @@ class ValueIterator {
     this[_items] = items;
     this[kEnvironment] = environment;
   }
+  
   *[Symbol.iterator] () {
-    for (let item of this[_items]) {
+    for (const item of this[_items]) {
       if (is_literal(item)) {
         yield convert(item);
       } else if (item['@list']) {
-        for (let litem of item['@list']) {
+        for (const litem of item['@list']) {
           yield is_literal(litem) ?
             convert(litem) :
             models.wrap_object(litem, this[kEnvironment]);
@@ -111,17 +112,18 @@ class BaseReader extends Readable {
     this[_base] = base;
     this[_options] = options;
   }
+
   _read() {
     if (this[_done]) return;
-    let objectmode = this[_options].objectMode;
+    const objectmode = this[_options].objectMode;
     this[_done] = true;
-    let method =
+    const method =
       objectmode ?
         this[_base].export :
         this[_base].write;
     method.call(this[_base], this[_options], (err, doc) => {
       if (err) return this.emit('error', err);
-      this.push(objectmode ? doc : new Buffer(doc, 'utf8'));
+      this.push(objectmode ? doc : new Buffer.from(doc, 'utf8'));
       this.push(null);
       return false;
     });
@@ -132,17 +134,17 @@ function _compose(thing, types, base) {
   if (!types) return;
   if (!Array.isArray(types)) types = [types];
   thing[_includes] = thing[_includes] || new Map();
-  for (let type of types) {
+  for (const type of types) {
     if (type) {
       if (thing[_includes].get(type)) continue;
       if (type[_includes]) {
-        for (let include of type[_includes]) {
+        for (const include of type[_includes]) {
           if (!(include instanceof base))
             _compose(thing, include, base);
         }
       }
-      let props = {};
-      for (let name of Object.getOwnPropertyNames(type)) {
+      const props = {};
+      for (const name of Object.getOwnPropertyNames(type)) {
         if (name !== 'Builder')
           props[name] = Object.getOwnPropertyDescriptor(type, name);
       }
@@ -177,7 +179,7 @@ class Base {
    * Get the @type(s) of this object
    **/
   get type() {
-    let types = this[_expanded]['@type'];
+    const types = this[_expanded]['@type'];
     return !types || types.length === 0 ? undefined :
            types.length === 1 ? types[0] :
            types;
@@ -188,7 +190,7 @@ class Base {
    **/
   has(key) {
     key = as[key] || key;
-    let ret = this[_expanded][key];
+    const ret = this[_expanded][key];
     return ret && (ret.length > 0 || typeof ret === 'boolean');
   }
 
@@ -198,14 +200,14 @@ class Base {
   get(key) {
     key = as[key] || key;
     const nodekey = reasoner.node(key);
-    let res = this[_expanded][key] || [];
+    const res = this[_expanded][key] || [];
     if (res.length === 0) return;
     if (nodekey.is(asx.LanguageProperty)) {
-      let lvb = new LanguageValue.Builder();
+      const lvb = new LanguageValue.Builder();
       for (var n = 0; n < res.length; n++) {
-        let item = res[n];
-        let language = item['@language'] || LanguageValue.SYSLANG;
-        let value = item['@value'];
+        const item = res[n];
+        const language = item['@language'] || LanguageValue.SYSLANG;
+        const value = item['@value'];
         lvb.set(language, value);
       }
       return lvb.get();
@@ -233,7 +235,7 @@ class Base {
       options.origContext =
         this[kEnvironment].origContext;
     }
-    let handler = options.handler || jsonld.compact;
+    const handler = options.handler || jsonld.compact;
     handler(
       this[_expanded],
       options,
@@ -264,12 +266,12 @@ class Base {
       options = {};
     }
     options = options || {};
-    this.export(options, function(err,doc) {
+    this.export(options, function(err, doc) {
       if (err) {
         callback(err);
         return;
       }
-      callback(null, JSON.stringify(doc,null,options.space));
+      callback(null, JSON.stringify(doc, null, options.space));
     });
   }
 
@@ -305,18 +307,18 @@ class Base {
   }
 
   template() {
-    let Builder = this[_builder];
-    let type = this.type;
-    let exp = this[_expanded];
-    let tmpl = {};
-    for (let key of Object.keys(exp)) {
+    const Builder = this[_builder];
+    const type = this.type;
+    const exp = this[_expanded];
+    const tmpl = {};
+    for (const key of Object.keys(exp)) {
       let value = exp[key];
       if (Array.isArray(value))
         value = [].concat(value);
       tmpl[key] = value;
     }
-    return ()=> {
-      let bld = new Builder(type);
+    return () => {
+      const bld = new Builder(type);
       bld[_expanded] = bld[_base][_expanded] = Object.create(tmpl);
       models.compose_builder(bld, type);
       models.compose_base(bld[_base], type);
@@ -325,7 +327,7 @@ class Base {
   }
 
   * [Symbol.iterator]() {
-      for (let key of Object.keys(this[_expanded])) {
+      for (const key of Object.keys(this[_expanded])) {
           yield key;
       }
   }
@@ -333,13 +335,10 @@ class Base {
   [models.compose](types) {
     if (!types) return;
     if (!Array.isArray(types)) {
-      if (arguments.length > 1) {
-        types = Array.prototype.slice.call(arguments);
-      } else types = [types];
+      types = (arguments.length > 1)? Array.prototype.slice.call(arguments) : [types];
     }
     _compose(this, types, Base);
   }
-
 
   static composedType(includes, def) {
     if (!Array.isArray(includes))
@@ -354,14 +353,14 @@ class Base {
 }
 
 function setTypes(builder, types) {
-  let exp = builder[_base][_expanded];
+  const exp = builder[_base][_expanded];
   if (!types || (types && types.length === 0)) {
     delete exp['@type'];
   } else {
-    let ret = [];
+    const ret = [];
     if (!Array.isArray(types)) types = [types];
     types = reasoner.reduce(types);
-    for (let type of types) {
+    for (const type of types) {
       ret.push(type.valueOf());
     }
     exp['@type'] = ret;
@@ -371,43 +370,43 @@ function setTypes(builder, types) {
 class BaseBuilder {
   constructor(types, base, environment) {
     this[_base] = base || new Base(undefined, undefined, environment);
-    setTypes(this,types);
+    setTypes(this, types);
     models.compose_base(this[_base], types);
     models.compose_builder(this, types);
   }
 
   set(key, val, options) {
-    let expanded = this[_base][_expanded];
+    const expanded = this[_base][_expanded];
     options = options || {};
     if (val instanceof BaseBuilder || val instanceof LanguageValue.Builder)
       val = val.get();
     let n, l;
     key = as[key] || key;
-    let nodekey = reasoner.node(key);
+    const nodekey = reasoner.node(key);
     if (val === null || val === undefined) {
       delete expanded[key];
       if (expanded[key] !== undefined)
         expanded[key] = null;
     } else {
-      let is_iter = is_iterable(val);
+      const is_iter = is_iterable(val);
       if (nodekey.is(owl.FunctionalProperty)) {
         throwif(is_iter, 'Functional properties cannot have array values');
         delete _expanded[key];
       }
       expanded[key] = expanded[key] || [];
       if (!is_iter) val = [val];
-      for (let value of val) {
+      for (const value of val) {
         if (nodekey.is(owl.ObjectProperty) ||
             value instanceof Base ||
-            key == '@list') {
+            key === '@list') {
           if (value instanceof Base) {
             expanded[key].push(value[_expanded]);
           } else if (is_string(value)) {
             expanded[key].push({'@id': value});
           } else if (typeof value === 'object') {
-            let base = new BaseBuilder();
-            for (let k of Object.keys(value)) {
-              let v = value[k];
+            const base = new BaseBuilder();
+            for (const k of Object.keys(value)) {
+              const v = value[k];
               if (k === '@id') base.id(v);
               else if (k === '@type') base.type(v);
               else base.set(k, v);
@@ -417,14 +416,14 @@ class BaseBuilder {
             throw new Error('Invalid object property type');
           }
         } else if (value instanceof LanguageValue) {
-          for (let pair of value) {
+          for (const pair of value) {
             expanded[key].push({
               '@language': pair[0],
               '@value': pair[1]
             });
           }
         } else {
-          let ret = {
+          const ret = {
             '@value': value
           };
           if (options.lang) ret['@language'] = options.lang;
@@ -477,9 +476,7 @@ class BaseBuilder {
   [models.compose](types) {
     if (!types) return;
     if (!Array.isArray(types)) {
-      if (arguments.length > 1) {
-        types = Array.prototype.slice.call(arguments);
-      } else types = [types];
+      types = (arguments.length > 1)? Array.prototype.slice.call(arguments) : [types];
     }
     _compose(this, types, Base.Builder);
   }

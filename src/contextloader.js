@@ -1,7 +1,6 @@
 'use strict';
 
 const jsonld = require('jsonld')();
-const throwif = require('./utils').throwif;
 const checkCallback = require('./utils').checkCallback;
 const as = require('vocabs-as');
 const as_context = require('activitystreams-context');
@@ -36,7 +35,7 @@ class Loader {
   makeDocLoader() {
     return (url, cb) => {
       checkCallback(cb);
-      let context = this[_map][url];
+      const context = this[_map][url];
       if (context) {
         return cb(null, {
           contextUrl: null,

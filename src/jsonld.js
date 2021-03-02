@@ -1,14 +1,11 @@
 'use strict';
 
 const jsonld = require('jsonld')();
-const jsig = require('jsonld-signatures')({inject:{jsonld:jsonld}});
-const throwif = require('./utils').throwif;
+const jsig = require('jsonld-signatures');
 const checkCallback = require('./utils').checkCallback;
 const as_context = require('activitystreams-context');
-const securityContext = require('./jsig');
 const ext_context = require('./extcontext');
 const models = require('./models');
-const as = require('vocabs-as');
 const Environment = require('./environment');
 const Loader = require('./contextloader');
 const as_url_nohash = 'https://www.w3.org/ns/activitystreams';
@@ -32,7 +29,7 @@ function getContext(options) {
     return {'@context': options.origContext};
   } else {
     let ctx = [];
-    let ext = ext_context.get();
+    const ext = ext_context.get();
     if (ext)
       ctx = ctx.concat(ext);
     if (options && options.sign)
@@ -55,10 +52,10 @@ class JsonLD {
     checkCallback(callback);
     jsonld.normalize(
       expanded,
-      {format:'application/nquads'},
-      (err,doc)=> {
+      {format: 'application/nquads'},
+      (err, doc) => {
         if (err) return callback(err);
-        callback(null,doc);
+        callback(null, doc);
       });
   }
 
@@ -69,14 +66,14 @@ class JsonLD {
     }
     options = options || {};
     checkCallback(callback);
-    let _context = getContext(options);
+    const _context = getContext(options);
     jsonld.compact(
       expanded, _context, {},
-      (err, doc)=> {
+      (err, doc) => {
         if (err) return callback(err);
         if (typeof options.sign === 'object') {
           warn();
-          jsig.sign(doc,options.sign,callback);
+          jsig.sign(doc, options.sign, callback);
         } else {
           callback(null, doc);
         }
@@ -107,13 +104,13 @@ class JsonLD {
         documentLoader: environment.loader.makeDocLoader(),
         keepFreeFloatingNodes: true
       },
-      (err,expanded)=> {
+      (err, expanded) => {
         if (err) return callback(err);
         if (expanded && expanded.length > 0) {
-          let object = models.wrap_object(expanded[0], environment);
-          callback(null,object);
+          const object = models.wrap_object(expanded[0], environment);
+          callback(null, object);
         } else {
-          callback(null,null);
+          callback(null, null);
         }
       }
     );
@@ -121,10 +118,10 @@ class JsonLD {
 
   static importFromRDF(input, callback) {
     checkCallback(callback);
-    jsonld.fromRDF(input, {format:'application/nquads'},
-    (err, expanded)=> {
+    jsonld.fromRDF(input, {format: 'application/nquads'},
+    (err, expanded) => {
       if (err) return callback(err);
-      let base = models.wrap_object(expanded[0]);
+      const base = models.wrap_object(expanded[0]);
       callback(null, base);
     });
   }

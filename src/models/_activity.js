@@ -2,7 +2,6 @@
 
 const Base = require('./_base');
 const composedType = Base.composedType;
-const AsObject = require('./_object');
 const as = require('vocabs-as');
 
 const Activity = composedType(undefined, {

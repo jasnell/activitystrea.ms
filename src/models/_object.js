@@ -43,7 +43,7 @@ class AsObject extends Base {
   }
 
   get content() {
-    const content =  this.get(as.content);
+    const content = this.get(as.content);
     Object.defineProperty(this, 'content', {
       enumerable: true,
       configurable: false,

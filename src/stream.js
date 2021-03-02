@@ -20,7 +20,7 @@ class AS2Stream extends Transform {
 
   _flush(callback) {
     try {
-      let res = JSON.parse(this[buf]);
+      const res = JSON.parse(this[buf]);
       this[buf] = '';
       res['@context'] = res['@context'] || ctx;
       as.import(res, (err, obj) => {

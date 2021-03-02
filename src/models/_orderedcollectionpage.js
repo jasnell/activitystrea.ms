@@ -12,7 +12,7 @@ const OrderedCollectionPage =
   composedType([OrderedCollection, CollectionPage],
   {
     get startIndex() {
-      const ret = Math.max(0,this.get(as.startIndex));
+      const ret = Math.max(0, this.get(as.startIndex));
       Object.defineProperty(this, 'startIndex', {
         enumerable: true,
         configurable: false,

@@ -1,3 +1,8 @@
+## Modifications
+
+As required by the Apache license:
+Please note that all files dated 01/01/2021 & newer have been modified from the original...
+
 # Activity Streams 2.0
 
 Based on:
@@ -9,8 +14,6 @@ Includes experimental support for:
 
 * http://ns.jasnell.me/interval
 * http://ns.jasnell.me/social
-
-Starting with version `v0.8.0`, a minimum of Node v4.0.0 / ES6 is required.
 
 ## Getting Started
 

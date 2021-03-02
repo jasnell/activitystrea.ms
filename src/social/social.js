@@ -61,46 +61,46 @@ function gettypes(types, type) {
 }
 
 exports.population = function(types, environment) {
-  return a.object(gettypes(types,social.Population), environment);
+  return a.object(gettypes(types, social.Population), environment);
 };
 exports.everyone = function(types, environment) {
-  return a.object(gettypes(types,social.Everyone), environment);
+  return a.object(gettypes(types, social.Everyone), environment);
 };
 exports.public = function(types, environment) {
-  return a.object(gettypes(types,social.Public), environment);
+  return a.object(gettypes(types, social.Public), environment);
 };
 exports.private = function(types, environment) {
-  return a.object(gettypes(types,social.Private), environment);
+  return a.object(gettypes(types, social.Private), environment);
 };
 exports.direct = function(types, environment) {
-  return a.object(gettypes(types,social.Direct), environment);
+  return a.object(gettypes(types, social.Direct), environment);
 };
 exports.common = function(types, environment) {
-  return a.object(gettypes(types,social.Common), environment);
+  return a.object(gettypes(types, social.Common), environment);
 };
 exports.interested = function(types, environment) {
-  return a.object(gettypes(types,social.Interested), environment);
+  return a.object(gettypes(types, social.Interested), environment);
 };
 exports.self = function(types, environment) {
-  return a.object(gettypes(types,social.Self), environment);
+  return a.object(gettypes(types, social.Self), environment);
 };
 exports.all = function(types, environment) {
-  return a.object(gettypes(types,social.All), environment);
+  return a.object(gettypes(types, social.All), environment);
 };
 exports.any = function(types, environment) {
-  return a.object(gettypes(types,social.Any), environment);
+  return a.object(gettypes(types, social.Any), environment);
 };
 exports.none = function(types, environment) {
-  return a.object(gettypes(types,social.None), environment);
+  return a.object(gettypes(types, social.None), environment);
 };
 exports.compoundPopulation = function(types, environment) {
-  return a.object(gettypes(types,social.CompoundPopulation), environment);
+  return a.object(gettypes(types, social.CompoundPopulation), environment);
 };
 
 function social_recognizer(type) {
   let Thing;
   if (type) {
-    let node = reasoner.node(type);
+    const node = reasoner.node(type);
     if (node.is(social.Common)) {
       Thing = exports.model.Common;
     } else if (node.is(social.Interested)) {
@@ -142,7 +142,7 @@ exports.init = function(models, reasoner, context) {
 
   models.use(social_recognizer);
 
-  let graph = new reasoner.Graph();
+  const graph = new reasoner.Graph();
   [
     [social.Population, as.Object],
     [social.Everyone, social.Population],
@@ -156,7 +156,7 @@ exports.init = function(models, reasoner, context) {
     [social.Any, social.CompoundPopulation],
     [social.None, social.CompoundPopulation],
     [social.CompoundPopulation, social.Population]
-  ].forEach((pair)=> {
+  ].forEach((pair) => {
     graph.add({
       subject: pair[0],
       predicate: rdfs.subClassOf,
@@ -164,7 +164,7 @@ exports.init = function(models, reasoner, context) {
     });
   });
 
-  let functionalDatatype = [
+  const functionalDatatype = [
         owl.DatatypeProperty,
         owl.FunctionalProperty
       ];
@@ -175,7 +175,7 @@ exports.init = function(models, reasoner, context) {
     [social.havingRole, owl.ObjectProperty],
     [social.havingRelationship, owl.ObjectProperty],
     [social.distance, functionalDatatype]
-  ].forEach((pair)=> {
+  ].forEach((pair) => {
     graph.add({
       subject: pair[0],
       predicate: rdf.type,

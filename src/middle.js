@@ -5,7 +5,7 @@ const as = require('./activitystreams');
 
 class AS2Writer extends Writable {
   constructor(req) {
-    super({objectMode:true});
+    super({objectMode: true});
     this.req = req;
   }
 
@@ -24,7 +24,7 @@ function as2middleware(req, res, next) {
     return;
   }
   if (req.is('application/json') || req.is('application/*+json')) {
-    let str = new as.Stream();
+    const str = new as.Stream();
     req.pipe(str)
        .on('end', () => next())
        .on('error', error)

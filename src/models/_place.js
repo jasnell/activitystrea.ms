@@ -2,7 +2,6 @@
 
 const range = require('../utils').range;
 const throwif = require('../utils').throwif;
-const AsObject = require('./_object');
 const as = require('vocabs-as');
 const xsd = require('vocabs-xsd');
 const Base = require('./_base');
@@ -16,7 +15,7 @@ const Place = composedType(undefined, {
       configurable: false,
       value: isNaN(ret) ? undefined : ret
     });
-    return isNaN(ret) ? undefined : ret ;
+    return isNaN(ret) ? undefined : ret;
   },
   get altitude() {
     const ret = this.get(as.altitude);
@@ -25,16 +24,16 @@ const Place = composedType(undefined, {
       configurable: false,
       value: isNaN(ret) ? undefined : ret
     });
-    return isNaN(ret) ? undefined : ret ;
+    return isNaN(ret) ? undefined : ret;
   },
   get latitude() {
-    let ret = range(-90.0, 90.0, this.get(as.latitude));
+    const ret = range(-90.0, 90.0, this.get(as.latitude));
     Object.defineProperty(this, 'latitude', {
       enumerable: true,
       configurable: false,
       value: isNaN(ret) ? undefined : ret
     });
-    return isNaN(ret) ? undefined : ret ;
+    return isNaN(ret) ? undefined : ret;
   },
   get longitude() {
     const ret = range(-180.0, 180.0, this.get(as.longitude));
@@ -43,7 +42,7 @@ const Place = composedType(undefined, {
       configurable: false,
       value: isNaN(ret) ? undefined : ret
     });
-    return isNaN(ret) ? undefined : ret ;
+    return isNaN(ret) ? undefined : ret;
   },
   get radius() {
     const ret = range(0, Infinity, this.get(as.radius));
@@ -52,7 +51,7 @@ const Place = composedType(undefined, {
       configurable: false,
       value: isNaN(ret) ? undefined : ret
     });
-    return isNaN(ret) ? undefined : ret ;
+    return isNaN(ret) ? undefined : ret;
   },
   get units() {
     const units = this.get(as.units);
@@ -92,7 +91,7 @@ const PlaceBuilder = composedType(undefined, {
     return this;
   },
   units(val) {
-    return this.set(as.units,val);
+    return this.set(as.units, val);
   }
 });
 
