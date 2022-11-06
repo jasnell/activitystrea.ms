@@ -1,5 +1,3 @@
-'use strict';
-
 const { Transform } = require('readable-stream');
 const as = require('./activitystreams');
 const ctx = require('activitystreams-context');

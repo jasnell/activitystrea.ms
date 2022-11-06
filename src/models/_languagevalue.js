@@ -1,5 +1,3 @@
-'use strict';
-
 const LanguageTag = require('rfc5646');
 const _map = Symbol('map');
 

@@ -1,5 +1,3 @@
-'use strict';
-
 const Writable = require('readable-stream').Writable;
 const as = require('./activitystreams');
 

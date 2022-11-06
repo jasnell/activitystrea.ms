@@ -1,5 +1,3 @@
-'use strict';
-
 const Reasoner = require('reasoner');
 const Graph = Reasoner.Graph;
 const as = require('vocabs-as');

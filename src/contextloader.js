@@ -1,5 +1,3 @@
-'use strict';
-
 const jsonld = require('jsonld')();
 const as = require('vocabs-as');
 const as_context = require('activitystreams-context');

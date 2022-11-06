@@ -1,6 +1,3 @@
-'use strict';
-
-const url = require('url');
 const moment = require('moment');
 const xsd = require('vocabs-xsd');
 const _toString = {}.toString;

@@ -1,5 +1,3 @@
-'use strict';
-
 const Base = require('../models').Base;
 const composedType = Base.composedType;
 const Population = require('./_population');

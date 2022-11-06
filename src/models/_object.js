@@ -1,5 +1,3 @@
-'use strict';
-
 const set_date_val = require('../utils').set_date_val;
 const set_duration_val = require('../utils').set_duration_val;
 const as = require('vocabs-as');

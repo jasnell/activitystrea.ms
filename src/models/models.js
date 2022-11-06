@@ -1,5 +1,3 @@
-'use strict';
-
 const as = require('vocabs-as');
 const reasoner = require('../reasoner');
 const _compose = Symbol('compose');

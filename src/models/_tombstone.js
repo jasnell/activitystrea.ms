@@ -1,5 +1,3 @@
-'use strict';
-
 const as = require('vocabs-as');
 const AsObject = require('./_object');
 const Base = require('./_base');

@@ -1,5 +1,3 @@
-'use strict';
-
 const as = require('vocabs-as');
 const xsd = require('vocabs-xsd');
 const range = require('../utils').range;

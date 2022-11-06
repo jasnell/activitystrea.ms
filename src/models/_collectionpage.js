@@ -1,4 +1,3 @@
-'use strict';
 
 const as = require('vocabs-as');
 const Collection = require('./_collection');
@@ -31,6 +30,7 @@ const CollectionPage = composedType(Collection, {
       configurable: false,
       value: prev
     });
+    return prev;
   }
 });
 

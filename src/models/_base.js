@@ -1,5 +1,3 @@
-'use strict';
-
 const Readable = require('readable-stream').Readable;
 const reasoner = require('../reasoner');
 const LanguageValue = require('./_languagevalue');

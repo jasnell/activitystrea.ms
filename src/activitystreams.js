@@ -1,5 +1,3 @@
-'use strict';
-
 const reasoner = require('./reasoner');
 const jsonld = require('./jsonld');
 const ext_context = require('./extcontext');
@@ -283,7 +281,7 @@ class AS2 {
     return middle;
   }
 
-};
+}
 
 Object.defineProperties(AS2, {
   mediaType: {

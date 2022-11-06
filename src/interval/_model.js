@@ -1,5 +1,3 @@
-'use strict';
-
 const Base = require('../models/_base');
 const composedType = Base.composedType;
 const interval = require('vocabs-interval');

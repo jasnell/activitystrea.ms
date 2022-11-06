@@ -1,5 +1,3 @@
-'use strict';
-
 const a = require('../activitystreams');
 const reasoner = require('../reasoner');
 const social = require('vocabs-social');

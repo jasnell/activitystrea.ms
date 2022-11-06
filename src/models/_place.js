@@ -1,5 +1,3 @@
-'use strict';
-
 const range = require('../utils').range;
 const throwif = require('../utils').throwif;
 const as = require('vocabs-as');

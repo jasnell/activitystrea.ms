@@ -1,5 +1,3 @@
-'use strict';
-
 const range = require('../utils').range;
 const throwif = require('../utils').throwif;
 const Base = require('./_base');
@@ -9,10 +7,6 @@ const composedType = Base.composedType;
 const _ordered = Symbol('ordered');
 const _items = Symbol('items');
 const slice = Array.prototype.slice;
-
-function isIterable(i) {
-  return i && (typeof i[Symbol.iterator] === 'function');
-}
 
 const Collection = composedType(undefined, {
   get totalItems() {

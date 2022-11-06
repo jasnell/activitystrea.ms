@@ -1,5 +1,3 @@
-'use strict';
-
 const as = require('vocabs-as');
 const Activity = require('./_activity');
 const Base = require('./_base');

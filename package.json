@@ -14,9 +14,13 @@
     "type": "git",
     "url": "https://github.com/twipped/activitystreams"
   },
+  "publishConfig": {
+    "access": "public"
+  },
   "license": "Apache-2.0",
   "scripts": {
-    "test": "mocha ./test/ --recursive"
+    "test": "mocha ./test/ --recursive",
+    "lint": "eslint ."
   },
   "dependencies": {
     "activitystreams-context": "^3.1.0",
