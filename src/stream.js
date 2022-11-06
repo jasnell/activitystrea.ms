@@ -1,6 +1,6 @@
 'use strict';
 
-const Transform = require('readable-stream/transform');
+const { Transform } = require('readable-stream');
 const as = require('./activitystreams');
 const ctx = require('activitystreams-context');
 const buf = Symbol('buffer');
