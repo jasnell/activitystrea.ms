@@ -25,7 +25,7 @@ const _items = Symbol('items');
 const _includes = Symbol('includes');
 
 function is_literal(item) {
-  return item && item.hasOwnProperty('@value');
+  return item && Object.prototype.hasOwnProperty.call(item, '@value');
 }
 
 function is_iterable(item) {
@@ -42,14 +42,15 @@ function convert(item) {
   let value = item['@value'];
   if (type) {
     const node = reasoner.node(type);
-    if (node.is(asx.Number))
+    if (node.is(asx.Number)) {
       value = Number(value);
-    else if (node.is(xsd.duration))
-      value = value;
-    else if (node.is(asx.Date))
+    } else if (node.is(xsd.duration)) {
+      // do nothing
+    } else if (node.is(asx.Date)) {
       value = moment(value);
-    else if (node.is(asx.Boolean))
+    }else if (node.is(asx.Boolean)) {
       value = value !== 'false';
+    }
   }
   return value;
 }
@@ -225,67 +226,41 @@ class Base {
   /**
    * Export the object to a normal, 'unwrapped' JavaScript object
    **/
-  export(options, callback) {
-    if (typeof options === 'function') {
-      callback = options;
-      options = {};
-    }
-    options = options || {};
+  async export(options = {}) {
     if (options.useOriginalContext) {
       options.origContext =
         this[kEnvironment].origContext;
     }
     const handler = options.handler || jsonld.compact;
-    handler(
+    return handler(
       this[_expanded],
-      options,
-      callback);
+      options
+    );
   }
 
 /**
  * Export the object to an RDF/Triple string
  **/
-  toRDF(options, callback) {
-    if (typeof options === 'function') {
-      callback = options;
-      options = {};
-    }
-    options = options || {};
-    jsonld.normalize(
+  async toRDF(options = {}) {
+    return jsonld.normalize(
       this[_expanded],
-      options,
-      callback);
+      options
+    );
   }
 
   /**
   * Write the object out to a String
   **/
-  write(options, callback) {
-    if (typeof options === 'function') {
-      callback = options;
-      options = {};
-    }
-    options = options || {};
-    this.export(options, function(err, doc) {
-      if (err) {
-        callback(err);
-        return;
-      }
-      callback(null, JSON.stringify(doc, null, options.space));
-    });
+  async write(options = {}) {
+    const doc = await this.export(options);
+    return JSON.stringify(doc, null, options.space);
   }
 
   /**
   * Write the object out to to a string with indenting
   **/
-  prettyWrite(options, callback) {
-    if (typeof options === 'function') {
-      callback = options;
-      options = {};
-    }
-    options = options || {};
-    options.space = options.space || 2;
-    this.write(options, callback);
+  async prettyWrite(options = {}) {
+    return this.write({ space: 2, ...options });
   }
 
   /**
@@ -378,9 +353,10 @@ class BaseBuilder {
   set(key, val, options) {
     const expanded = this[_base][_expanded];
     options = options || {};
-    if (val instanceof BaseBuilder || val instanceof LanguageValue.Builder)
+    if (val instanceof BaseBuilder || val instanceof LanguageValue.Builder) {
       val = val.get();
-    let n, l;
+    }
+
     key = as[key] || key;
     const nodekey = reasoner.node(key);
     if (val === null || val === undefined) {
@@ -445,20 +421,20 @@ class BaseBuilder {
     return this[_base];
   }
 
-  export(options, callback) {
-    return this.get().export(options, callback);
+  export(options) {
+    return this.get().export(options);
   }
 
-  toRDF(options, callback) {
-    return this.get().toRDF(options, callback);
+  toRDF(options) {
+    return this.get().toRDF(options);
   }
 
-  write(options, callback) {
-    return this.get().write(options, callback);
+  write(options) {
+    return this.get().write(options);
   }
 
-  prettyWrite(options, callback) {
-    return this.get().prettyWrite(options, callback);
+  prettyWrite(options) {
+    return this.get().prettyWrite(options);
   }
 
   stream(options) {

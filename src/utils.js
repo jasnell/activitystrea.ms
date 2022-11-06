@@ -7,12 +7,6 @@ const _toString = {}.toString;
 
 class Utils {
 
-  static checkCallback(callback) {
-    Utils.throwif(
-      typeof callback !== 'function',
-      'A callback function must be provided');
-  }
-
   static throwif(condition, message) {
     if (condition) throw Error(message);
   }

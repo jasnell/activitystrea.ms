@@ -6,10 +6,8 @@ const ctx = require('activitystreams-context');
 const buf = Symbol('buffer');
 
 class AS2Stream extends Transform {
-  constructor(options) {
-    options = options || {};
-    options.objectMode = true;
-    super(options);
+  constructor(options = {}) {
+    super({ ...options, objectMode: true });
     this[buf] = '';
   }
 
@@ -23,11 +21,10 @@ class AS2Stream extends Transform {
       const res = JSON.parse(this[buf]);
       this[buf] = '';
       res['@context'] = res['@context'] || ctx;
-      as.import(res, (err, obj) => {
-        if (err) return callback(err);
+      as.import(res).then((obj) => {
         this.push(obj);
         callback();
-      });
+      }, callback);
     } catch (err) {
       callback(err);
     }
