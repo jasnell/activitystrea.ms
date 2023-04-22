@@ -1,5 +1,3 @@
-'use strict';
-
 const assert = require('assert');
 const as = require('../src/activitystreams');
 const models = require('../src/models');
@@ -10,10 +8,9 @@ const now = new Date();
 const nowiso = now.toISOString();
 
 describe('Basics...', () => {
-  it('should build a minimal object', (done) => {
+  it('should build a minimal object', async () => {
     var object = as.object().get();
     assert.equal(object.type, asv.Object);
-    done();
   });
 
   function testFunctionalProperties(object) {
@@ -27,7 +24,7 @@ describe('Basics...', () => {
     assert.equal(object.updated.toISOString(), nowiso);
   }
 
-  it('should create an object and return all the correct values', (done) => {
+  it('should create an object and return all the correct values', async () => {
     var object = as.object()
       .content(
         as.langmap()
@@ -45,10 +42,9 @@ describe('Basics...', () => {
       .updated(now)
       .get();
     testFunctionalProperties(object);
-    done();
   });
 
-  it('should roundtrip correctly', (done) => {
+  it('should roundtrip correctly', async () => {
     var object = as.object()
       .content(
         as.langmap()
@@ -65,49 +61,41 @@ describe('Basics...', () => {
       .published(now)
       .updated(now)
       .get();
-    object.export((err, doc) => {
-      assert.equal(err, null);
-      as.import(doc, (err, doc) => {
-        assert.equal(err, undefined);
-        testFunctionalProperties(doc);
-        done();
-      });
-    });
+    const doc = await object.export();
+
+    const imported = await as.import(doc);
+    testFunctionalProperties(imported);
   });
 
-  it('should produce the correct default context URL', (done) => {
+  it('should produce the correct default context URL', async () => {
     var object = as.object().get();
     assert(typeof(object) === 'object');
-    object.export((err, doc) => {
-      assert.equal(err, null);
-      assert(typeof(doc) === 'object');
-      assert(doc.hasOwnProperty('@context'));
-      assert.equal(doc['@context'], 'https://www.w3.org/ns/activitystreams');
-      done();
-    });
+    const doc = await object.export();
+
+    assert(typeof(doc) === 'object');
+    assert(Object.prototype.hasOwnProperty.call(doc, '@context'));
+    assert.equal(doc['@context'], 'https://www.w3.org/ns/activitystreams');
   });
 
-  it('should create a basic activity object', (done) => {
+  it('should create a basic activity object', async () => {
     const activity = as.activity().actor('http://example').get();
     assert(activity instanceof models.Object);
     assert(activity.actor);
     assert(activity.actor.first);
     assert(activity.actor.first.id, 'http://example');
-    done();
   });
 
-  it('should create a basic collection object', (done) => {
+  it('should create a basic collection object', async () => {
     const collection = as.collection().totalItems(1).get();
     assert(collection instanceof models.Object);
     assert(collection.totalItems, 1);
-    done();
+
   });
 
-  it('should create a basic ordered collection object', (done) => {
+  it('should create a basic ordered collection object', async () => {
     const collection = as.orderedCollection().totalItems(1).get();
     assert(collection instanceof models.Object);
     assert(collection.totalItems, 1);
-    done();
   });
 
   it('should create a basic link object', (done) => {
@@ -207,8 +195,8 @@ describe('Basics...', () => {
     done();
   });
 
-  it('should import from JSON without errors', (done) => {
-    as.import({
+  it('should import from JSON without errors', async () => {
+    const doc = await as.import({
       'type': 'Like',
       nameMap: {
         en: 'foo'
@@ -221,18 +209,16 @@ describe('Basics...', () => {
         'type': 'http://example.org/Table',
         name: 'Table'
       }
-    }, (err, doc) => {
-      assert.equal(null, err);
-      assert.equal(asv.Like, doc.type);
-      assert.equal(doc.name, 'foo');
-      const actor = doc.actor.first;
-      assert.equal(asv.Person, actor.type);
-      assert.equal(actor.name, 'Joe');
-      done();
     });
+
+    assert.equal(asv.Like, doc.type);
+    assert.equal(doc.name, 'foo');
+    const actor = doc.actor.first;
+    assert.equal(asv.Person, actor.type);
+    assert.equal(actor.name, 'Joe');
   });
 
-  it('should handle languages properly', (done) => {
+  it('should handle languages properly', async () => {
     var LanguageValue = require('../src/models/_languagevalue');
     var B = new LanguageValue.Builder();
     B.set('en-US', 'bar');
@@ -246,33 +232,26 @@ describe('Basics...', () => {
     assert.equal(lv.get('en-Us-Scrp'), 'bar');
     assert.equal(lv.get('fr'), 'boo');
     assert.equal(lv.get('FR-US'), 'baz');
-    done();
   });
 
-  it('should roundtrip the RDF properly', (done) => {
+  it('should roundtrip the RDF properly', async () => {
     var obj = as.object().name('test').get();
-    obj.toRDF((err, doc) => {
-      assert.equal(err, undefined);
-      assert(doc);
-      as.importFromRDF(doc, (err, doc ) => {
-        assert.equal(err, undefined);
-        assert.equal(doc.name.get(), 'test');
-        done();
-      });
-    });
+    const doc = await obj.toRDF();
+    
+    assert(doc);
+    
+    const doc2 = await as.importFromRDF(doc);
+    assert.equal(doc2.name.get(), 'test');
   });
 
-  it('should import an object with just an id', (done) => {
+  it('should import an object with just an id', async () => {
     var test = {'id': 'http://example.org'};
-    as.import(test, (err, doc) => {
-      assert.equal(err, undefined);
-      assert.equal(doc.id, 'http://example.org');
-      done();
-    });
+    const doc = await as.import(test);
+    assert.equal(doc.id, 'http://example.org');
   });
 
   it('should have appropriate values for every orderedcollection property',
-    (done) => {
+    async () => {
 
     var doc = as.orderedCollection()
       .id('http://example.org')
@@ -292,11 +271,10 @@ describe('Basics...', () => {
     const iter = doc.items[Symbol.iterator]();
     assert.equal(iter.next().value.id, 'http://example.org/item/1');
     assert.equal(iter.next().value.id, 'http://example.org/item/2');
-    done();
   });
 
   it('should have appropriate values for every orderedcollection property',
-    (done) => {
+    async () => {
 
     var test = {
       '@context': 'https://www.w3.org/ns/activitystreams',
@@ -312,25 +290,19 @@ describe('Basics...', () => {
       ]
     };
 
-    as.import(test, (err, doc) => {
-      assert.equal(err, undefined);
-      assert(doc instanceof as.models.Object);
-      assert.equal(doc.totalItems, 1);
-      assert.equal(doc.current.id, 'http://example.org/current');
-      assert.equal(doc.first.id, 'http://example.org/first');
-      assert.equal(doc.last.id, 'http://example.org/last');
-      assert.equal(doc.items.length, 2);
-      const iter = doc.items[Symbol.iterator]();
-      assert.equal(iter.next().value.id, 'http://example.org/item/1');
-      assert.equal(iter.next().value.id, 'http://example.org/item/2');
-
-      done();
-    });
-
+    const doc = await as.import(test);
+    assert(doc instanceof as.models.Object);
+    assert.equal(doc.totalItems, 1);
+    assert.equal(doc.current.id, 'http://example.org/current');
+    assert.equal(doc.first.id, 'http://example.org/first');
+    assert.equal(doc.last.id, 'http://example.org/last');
+    assert.equal(doc.items.length, 2);
+    const iter = doc.items[Symbol.iterator]();
+    assert.equal(iter.next().value.id, 'http://example.org/item/1');
+    assert.equal(iter.next().value.id, 'http://example.org/item/2');
   });
 
-  it('should have appropriate values for every collection property',
-    (done) => {
+  it('should have appropriate values for every collection property', async () => {
 
     var doc = as.collection()
       .id('http://example.org')
@@ -351,12 +323,9 @@ describe('Basics...', () => {
     const iter = doc.items[Symbol.iterator]();
     assert.equal(iter.next().value.id, 'http://example.org/item/1');
     assert.equal(iter.next().value.id, 'http://example.org/item/2');
-
-    done();
   });
 
-  it('should have appropriate values for every collection property',
-    (done) => {
+  it('should have appropriate values for every collection property', async () => {
 
     var test = {
       '@context': 'https://www.w3.org/ns/activitystreams',
@@ -372,25 +341,19 @@ describe('Basics...', () => {
       ]
     };
 
-    as.import(test, (err, doc) => {
-      assert.equal(err, undefined);
-      assert(doc instanceof as.models.Object);
-      assert.equal(doc.totalItems, 1);
-      assert.equal(doc.current.id, 'http://example.org/current');
-      assert.equal(doc.first.id, 'http://example.org/first');
-      assert.equal(doc.last.id, 'http://example.org/last');
-      assert.equal(doc.items.length, 2);
-      const iter = doc.items[Symbol.iterator]();
-      assert.equal(iter.next().value.id, 'http://example.org/item/1');
-      assert.equal(iter.next().value.id, 'http://example.org/item/2');
-      done();
-    });
-
+    const doc = await as.import(test);
+    assert(doc instanceof as.models.Object);
+    assert.equal(doc.totalItems, 1);
+    assert.equal(doc.current.id, 'http://example.org/current');
+    assert.equal(doc.first.id, 'http://example.org/first');
+    assert.equal(doc.last.id, 'http://example.org/last');
+    assert.equal(doc.items.length, 2);
+    const iter = doc.items[Symbol.iterator]();
+    assert.equal(iter.next().value.id, 'http://example.org/item/1');
+    assert.equal(iter.next().value.id, 'http://example.org/item/2');
   });
 
-  it('should have appropriate values for every activity property',
-    (done) => {
-
+  it('should have appropriate values for every activity property', async () => {
     var doc = as.activity()
       .id('http://example.org')
       .actor('http://example.org/actor')
@@ -422,13 +385,9 @@ describe('Basics...', () => {
     assert(doc.instrument);
     assert.equal(doc.instrument.length, 1);
     assert.equal(doc.instrument.first.id, 'http://example.org/instrument');
-
-    done();
   });
 
-  it('should have appropriate values for every activity property',
-    (done) => {
-
+  it('should have appropriate values for every activity property - take 2', async () => {
     var test = {
       '@context': 'https://www.w3.org/ns/activitystreams',
       'id': 'http://example.org',
@@ -441,36 +400,32 @@ describe('Basics...', () => {
       instrument: 'http://example.org/instrument'
     };
 
-    as.import(test, (err, doc) => {
-      assert.equal(err, undefined);
-      assert(doc instanceof as.models.Object);
-      assert.equal(doc.id, 'http://example.org');
+    const doc = await as.import(test);
 
-      assert(doc.actor);
-      assert.equal(doc.actor.length, 1);
-      assert.equal(doc.actor.first.id, 'http://example.org/actor');
-      assert(doc.object);
-      assert.equal(doc.object.length, 1);
-      assert.equal(doc.object.first.id, 'http://example.org/object');
-      assert(doc.target);
-      assert.equal(doc.target.length, 1);
-      assert.equal(doc.target.first.id, 'http://example.org/target');
-      assert(doc.result);
-      assert.equal(doc.result.length, 1);
-      assert.equal(doc.result.first.id, 'http://example.org/result');
-      assert(doc.origin);
-      assert.equal(doc.origin.length, 1);
-      assert.equal(doc.origin.first.id, 'http://example.org/origin');
-      assert(doc.instrument);
-      assert.equal(doc.instrument.length, 1);
-      assert.equal(doc.instrument.first.id, 'http://example.org/instrument');
-      done();
-    });
+    assert(doc instanceof as.models.Object);
+    assert.equal(doc.id, 'http://example.org');
 
+    assert(doc.actor);
+    assert.equal(doc.actor.length, 1);
+    assert.equal(doc.actor.first.id, 'http://example.org/actor');
+    assert(doc.object);
+    assert.equal(doc.object.length, 1);
+    assert.equal(doc.object.first.id, 'http://example.org/object');
+    assert(doc.target);
+    assert.equal(doc.target.length, 1);
+    assert.equal(doc.target.first.id, 'http://example.org/target');
+    assert(doc.result);
+    assert.equal(doc.result.length, 1);
+    assert.equal(doc.result.first.id, 'http://example.org/result');
+    assert(doc.origin);
+    assert.equal(doc.origin.length, 1);
+    assert.equal(doc.origin.first.id, 'http://example.org/origin');
+    assert(doc.instrument);
+    assert.equal(doc.instrument.length, 1);
+    assert.equal(doc.instrument.first.id, 'http://example.org/instrument');
   });
 
-  it('should have appropriate values for every link property',
-    (done) => {
+  it('should have appropriate values for every link property', async () => {
     var test = {
       '@context': 'https://www.w3.org/ns/activitystreams',
       'id': 'http://example.org',
@@ -483,25 +438,22 @@ describe('Basics...', () => {
       height: 10,
       width: 10,
     };
-    as.import(test, (err, doc) => {
-      assert.equal(err, undefined);
-      assert(doc instanceof as.models.Link);
-      assert.equal(doc.id, 'http://example.org');
-      assert.equal(doc.href, 'http://example.org');
-      const iter = doc.rel[Symbol.iterator]();
-      assert.equal(iter.next().value, 'a');
-      assert.equal(iter.next().value, 'b');
-      assert.equal(doc.mediaType, 'application/text');
-      assert.equal(doc.name.get(), 'the display name');
-      assert.equal(doc.hreflang, 'en');
-      assert.equal(doc.height, 10);
-      assert.equal(doc.width, 10);
-      done();
-    });
+    const doc = await as.import(test);
+    
+    assert(doc instanceof as.models.Link);
+    assert.equal(doc.id, 'http://example.org');
+    assert.equal(doc.href, 'http://example.org');
+    const iter = doc.rel[Symbol.iterator]();
+    assert.equal(iter.next().value, 'a');
+    assert.equal(iter.next().value, 'b');
+    assert.equal(doc.mediaType, 'application/text');
+    assert.equal(doc.name.get(), 'the display name');
+    assert.equal(doc.hreflang, 'en');
+    assert.equal(doc.height, 10);
+    assert.equal(doc.width, 10);
   });
 
-  it('should have appropriate values for every link property',
-    (done) => {
+  it('should have appropriate values for every link property', async () => {
     var doc = as.link()
       .id('http://example.org')
       .href('http://example.org')
@@ -525,12 +477,9 @@ describe('Basics...', () => {
     assert.equal(doc.hreflang, 'en');
     assert.equal(doc.height, 10);
     assert.equal(doc.width, 10);
-    done();
-
   });
 
-  it('should have appropriate values for every object property',
-     (done) => {
+  it('should have appropriate values for every object property', async () => {
     var test = {
       '@context': 'https://www.w3.org/ns/activitystreams',
       'id': 'http://example.org',
@@ -559,77 +508,70 @@ describe('Basics...', () => {
       cc: 'http://mark.example.org',
       bcc: 'http://jane.example.org'
     };
-    as.import(test, (err, doc) => {
-      assert.equal(err, undefined);
-      assert.equal(doc.id, 'http://example.org');
-      assert.equal(doc.type, asv.Object);
-      assert(doc.attachment);
-      assert.equal(doc.attachment.length, 1);
-      assert.equal(doc.attachment.first.id, 'http://example.org/attachment');
-      assert(doc.attributedTo);
-      assert.equal(doc.attributedTo.length, 1);
-      assert.equal(doc.attributedTo.first.id, 'http://sally.example.org');
-      assert.equal(doc.content.get(), 'the content');
-      assert(doc.context);
-      assert.equal(doc.context.length, 1);
-      assert.equal(doc.context.first.id, 'http://example.org/context');
-      assert.equal(doc.name.get(), 'the display name');
-      assert.equal(doc.endTime.valueOf(),
-        new Date('2015-12-12T12:12:12Z').valueOf());
-      assert(doc.generator);
-      assert.equal(doc.generator.length, 1);
-      assert.equal(doc.generator.first.id, 'http://example.org/generator');
-      assert(doc.icon);
-      assert.equal(doc.icon.length, 1);
-      assert.equal(doc.icon.first.id, 'http://example.org/icon');
-      assert(doc.image);
-      assert.equal(doc.image.length, 1);
-      assert.equal(doc.image.first.id, 'http://example.org/image');
-      assert(doc.inReplyTo);
-      assert.equal(doc.inReplyTo.length, 1);
-      assert.equal(doc.inReplyTo.first.id, 'http://example.org/in-reply-to');
-      assert(doc.location);
-      assert.equal(doc.location.length, 1);
-      assert.equal(doc.location.first.id, 'http://example.org/location');
-      assert(doc.preview);
-      assert.equal(doc.preview.length, 1);
-      assert.equal(doc.preview.first.id, 'http://example.org/preview');
-      assert(doc.tag);
-      assert.equal(doc.tag.length, 1);
-      assert.equal(doc.tag.first.id, 'http://example.org/tag');
-      assert.equal(doc.updated.valueOf(),
-        new Date('2015-12-12T12:12:12Z').valueOf());
-      assert.equal(doc.published.valueOf(),
-        new Date('2015-12-12T12:12:12Z').valueOf());
-      assert(doc.replies);
-      assert.equal(doc.replies.length, 1);
-      assert.equal(doc.replies.first.id, 'http://example.org/replies');
-      assert(doc.audience);
-      assert.equal(doc.audience.length, 1);
-      assert.equal(doc.audience.first.id, 'http://example.org/scope');
-      assert(doc.url);
-      assert.equal(doc.url.length, 1);
-      assert.equal(doc.url.first.id, 'http://example.org');
-      assert.equal(doc.startTime.valueOf(),
-        new Date('2015-12-12T12:12:12Z').valueOf());
-      assert(doc.to);
-      assert.equal(doc.to.length, 1);
-      assert.equal(doc.to.first.id, 'http://joe.example.org');
-      assert(doc.bto);
-      assert.equal(doc.bto.length, 1);
-      assert.equal(doc.bto.first.id, 'http://sally.example.org');
-      assert(doc.cc);
-      assert.equal(doc.cc.length, 1);
-      assert.equal(doc.cc.first.id, 'http://mark.example.org');
-      assert(doc.bcc);
-      assert.equal(doc.bcc.length, 1);
-      assert.equal(doc.bcc.first.id, 'http://jane.example.org');
-      done();
-    });
+    const doc = await as.import(test);
+
+    assert.equal(doc.id, 'http://example.org');
+    assert.equal(doc.type, asv.Object);
+    assert(doc.attachment);
+    assert.equal(doc.attachment.length, 1);
+    assert.equal(doc.attachment.first.id, 'http://example.org/attachment');
+    assert(doc.attributedTo);
+    assert.equal(doc.attributedTo.length, 1);
+    assert.equal(doc.attributedTo.first.id, 'http://sally.example.org');
+    assert.equal(doc.content.get(), 'the content');
+    assert(doc.context);
+    assert.equal(doc.context.length, 1);
+    assert.equal(doc.context.first.id, 'http://example.org/context');
+    assert.equal(doc.name.get(), 'the display name');
+    assert.equal(doc.endTime.valueOf(), new Date('2015-12-12T12:12:12Z').valueOf());
+    assert(doc.generator);
+    assert.equal(doc.generator.length, 1);
+    assert.equal(doc.generator.first.id, 'http://example.org/generator');
+    assert(doc.icon);
+    assert.equal(doc.icon.length, 1);
+    assert.equal(doc.icon.first.id, 'http://example.org/icon');
+    assert(doc.image);
+    assert.equal(doc.image.length, 1);
+    assert.equal(doc.image.first.id, 'http://example.org/image');
+    assert(doc.inReplyTo);
+    assert.equal(doc.inReplyTo.length, 1);
+    assert.equal(doc.inReplyTo.first.id, 'http://example.org/in-reply-to');
+    assert(doc.location);
+    assert.equal(doc.location.length, 1);
+    assert.equal(doc.location.first.id, 'http://example.org/location');
+    assert(doc.preview);
+    assert.equal(doc.preview.length, 1);
+    assert.equal(doc.preview.first.id, 'http://example.org/preview');
+    assert(doc.tag);
+    assert.equal(doc.tag.length, 1);
+    assert.equal(doc.tag.first.id, 'http://example.org/tag');
+    assert.equal(doc.updated.valueOf(), new Date('2015-12-12T12:12:12Z').valueOf());
+    assert.equal(doc.published.valueOf(), new Date('2015-12-12T12:12:12Z').valueOf());
+    assert(doc.replies);
+    assert.equal(doc.replies.length, 1);
+    assert.equal(doc.replies.first.id, 'http://example.org/replies');
+    assert(doc.audience);
+    assert.equal(doc.audience.length, 1);
+    assert.equal(doc.audience.first.id, 'http://example.org/scope');
+    assert(doc.url);
+    assert.equal(doc.url.length, 1);
+    assert.equal(doc.url.first.id, 'http://example.org');
+    assert.equal(doc.startTime.valueOf(), new Date('2015-12-12T12:12:12Z').valueOf());
+    assert(doc.to);
+    assert.equal(doc.to.length, 1);
+    assert.equal(doc.to.first.id, 'http://joe.example.org');
+    assert(doc.bto);
+    assert.equal(doc.bto.length, 1);
+    assert.equal(doc.bto.first.id, 'http://sally.example.org');
+    assert(doc.cc);
+    assert.equal(doc.cc.length, 1);
+    assert.equal(doc.cc.first.id, 'http://mark.example.org');
+    assert(doc.bcc);
+    assert.equal(doc.bcc.length, 1);
+    assert.equal(doc.bcc.first.id, 'http://jane.example.org');
   });
 
-  it('should have appropriate values for every object property',
-     (done) => {
+  it('should have appropriate values for every object property', async () => {
     var doc = as.object()
       .id('http://example.org')
       .attachment('http://example.org/attachment')
@@ -719,12 +661,9 @@ describe('Basics...', () => {
       assert(doc.bcc);
       assert.equal(doc.bcc.length, 1);
       assert.equal(doc.bcc.first.id, 'http://jane.example.org');
-      done();
-
   });
 
-  it('should have appropriate values for the relationship object',
-    (done) => {
+  it('should have appropriate values for the relationship object', async () => {
 
       var test = {
         '@context': 'https://www.w3.org/ns/activitystreams',
@@ -734,30 +673,7 @@ describe('Basics...', () => {
         object: 'http://joe.example.org'
       };
 
-      as.import(test, (err, doc) => {
-        assert.equal(err, undefined);
-        assert(doc instanceof as.models.Object);
-        assert(doc.subject.id, 'http://sally.example.org');
-        assert(doc.relationship);
-        assert.equal(doc.relationship.length, 1);
-        assert.equal(doc.relationship.first.id, 'http://example.org');
-        assert(doc.object);
-        assert.equal(doc.object.length, 1);
-        assert.equal(doc.object.first.id, 'http://joe.example.org');
-        done();
-      });
-
-  });
-
-  it('should have appropriate values for the relationship object',
-    (done) => {
-
-      var doc = as.relationship()
-        .subject('http://sally.example.org')
-        .relationship('http://example.org')
-        .object('http://joe.example.org')
-        .get();
-
+      const doc = await as.import(test);
       assert(doc instanceof as.models.Object);
       assert(doc.subject.id, 'http://sally.example.org');
       assert(doc.relationship);
@@ -766,13 +682,26 @@ describe('Basics...', () => {
       assert(doc.object);
       assert.equal(doc.object.length, 1);
       assert.equal(doc.object.first.id, 'http://joe.example.org');
-      done();
-
   });
 
-  it('should have appropriate values for the question object',
-    (done) => {
+  it('should have appropriate values for the relationship object', async () => {
+    var doc = as.relationship()
+      .subject('http://sally.example.org')
+      .relationship('http://example.org')
+      .object('http://joe.example.org')
+      .get();
 
+    assert(doc instanceof as.models.Object);
+    assert(doc.subject.id, 'http://sally.example.org');
+    assert(doc.relationship);
+    assert.equal(doc.relationship.length, 1);
+    assert.equal(doc.relationship.first.id, 'http://example.org');
+    assert(doc.object);
+    assert.equal(doc.object.length, 1);
+    assert.equal(doc.object.first.id, 'http://joe.example.org');
+  });
+
+  it('should have appropriate values for the question object', async () => {
     var test = {
       '@context': 'https://www.w3.org/ns/activitystreams',
       'type': 'Question',
@@ -780,22 +709,17 @@ describe('Basics...', () => {
       anyOf: [{'id': 'urn:answer1'}, {'id': 'urn:answer2'}]
     };
 
-    as.import(test, (err, doc) => {
-      assert.equal(err, undefined);
-      assert(doc instanceof as.models.Object);
-      assert.equal(doc.name.get(), 'the question');
-      assert(doc.anyOf);
-      assert.equal(doc.anyOf.length, 2);
-      const iter = doc.anyOf[Symbol.iterator]();
-      assert.equal(iter.next().value.id, 'urn:answer1');
-      assert.equal(iter.next().value.id, 'urn:answer2');
-      done();
-    });
+    const doc = await as.import(test);
+    assert(doc instanceof as.models.Object);
+    assert.equal(doc.name.get(), 'the question');
+    assert(doc.anyOf);
+    assert.equal(doc.anyOf.length, 2);
+    const iter = doc.anyOf[Symbol.iterator]();
+    assert.equal(iter.next().value.id, 'urn:answer1');
+    assert.equal(iter.next().value.id, 'urn:answer2');
   });
 
-  it('should have appropriate values for the question object',
-    (done) => {
-
+  it('should have appropriate values for the question object', async () => {
     var doc = as.question()
       .name('the question')
       .anyOf('urn:answer1')
@@ -809,12 +733,9 @@ describe('Basics...', () => {
     const iter = doc.anyOf[Symbol.iterator]();
     assert.equal(iter.next().value.id, 'urn:answer1');
     assert.equal(iter.next().value.id, 'urn:answer2');
-    done();
-
   });
 
-  it('should have appropriate values for the place object', (done) => {
-
+  it('should have appropriate values for the place object', async () => {
     var test = {
       '@context': 'https://www.w3.org/ns/activitystreams',
       'type': 'Place',
@@ -826,22 +747,18 @@ describe('Basics...', () => {
       units: 'm'
     };
 
-    as.import(test, (err, doc) => {
-      assert.equal(err, undefined);
-      assert(doc instanceof as.models.Object);
-      assert.equal(doc.accuracy, 10);
-      assert.equal(doc.altitude, 10);
-      assert.equal(doc.latitude, 10);
-      assert.equal(doc.longitude, 10);
-      assert.equal(doc.radius, 10);
-      assert.equal(doc.units, 'm');
-      done();
-    });
+    const doc = await as.import(test);
 
+    assert(doc instanceof as.models.Object);
+    assert.equal(doc.accuracy, 10);
+    assert.equal(doc.altitude, 10);
+    assert.equal(doc.latitude, 10);
+    assert.equal(doc.longitude, 10);
+    assert.equal(doc.radius, 10);
+    assert.equal(doc.units, 'm');
   });
 
-  it('should have appropriate values for the place object', (done) => {
-
+  it('should have appropriate values for the place object', async () => {
     var doc = as.place()
       .accuracy(10)
       .altitude(10)
@@ -858,11 +775,9 @@ describe('Basics...', () => {
     assert.equal(doc.longitude, 10);
     assert.equal(doc.radius, 10);
     assert.equal(doc.units, 'm');
-    done();
-
   });
 
-  it('should have appropriate values for the profile object', (done) => {
+  it('should have appropriate values for the profile object', async () => {
 
     var test = {
       '@context': 'https://www.w3.org/ns/activitystreams',
@@ -870,44 +785,33 @@ describe('Basics...', () => {
       describes: 'http://example.org'
     };
 
-    as.import(test, (err, doc) => {
-      assert.equal(err, undefined);
-      assert(doc instanceof as.models.Object);
-      assert.equal(doc.describes.id, 'http://example.org');
-      done();
-    });
-
+    const doc = await as.import(test);
+    assert(doc instanceof as.models.Object);
+    assert.equal(doc.describes.id, 'http://example.org');
   });
 
-  it('should have appropriate values for the profile object', (done) => {
-
+  it('should have appropriate values for the profile object', async () => {
     var doc = as.profile()
       .describes('http://example.org')
       .get();
 
     assert(doc instanceof as.models.Object);
     assert.equal(doc.describes.id, 'http://example.org');
-    done();
-
   });
 
-  it('should use the default context', (done) => {
+  it('should use the default context', async () => {
     var test = {'id': 'urn:test', name: 'test'};
-    as.import(test, (err, doc) => {
-      assert.equal(err, undefined);
-      assert.equal(doc.id, 'urn:test');
-      assert.equal(doc.name.get(), 'test');
-      done();
-    });
+    const doc = await as.import(test);
+    assert.equal(doc.id, 'urn:test');
+    assert.equal(doc.name.get(), 'test');
   });
 
-  it('Nothing in as vocab should be undefined', (done) => {
+  it('Nothing in as vocab should be undefined', async () => {
     const keys = Object.keys(asv).filter((item) => {return !(asv[item]);});
     assert.equal(0, keys.length);
-    done();
   });
 
-  it('should have appropriate values for the ActivityPub collections', (done) => {
+  it('should have appropriate values for the ActivityPub collections', async () => {
     var doc = as.object()
       .inbox('https://evanp.example/inbox')
       .outbox('https://evanp.example/outbox')
@@ -915,22 +819,22 @@ describe('Basics...', () => {
       .following('https://evanp.example/following')
       .liked('https://evanp.example/liked')
       .get();
+
     assert(doc instanceof as.models.Object);
     assert.equal(doc.inbox.first.id, 'https://evanp.example/inbox');
     assert.equal(doc.outbox.first.id, 'https://evanp.example/outbox');
     assert.equal(doc.followers.first.id, 'https://evanp.example/followers');
     assert.equal(doc.following.first.id, 'https://evanp.example/following');
     assert.equal(doc.liked.first.id, 'https://evanp.example/liked');
-    doc.export((err, doc) => {
-      assert.equal(err, null);
-      assert.equal(typeof(doc), "object");
-      assert.equal(doc.inbox, 'https://evanp.example/inbox');
-      assert.equal(doc.outbox, 'https://evanp.example/outbox');
-      assert.equal(doc.followers, 'https://evanp.example/followers');
-      assert.equal(doc.following, 'https://evanp.example/following');
-      assert.equal(doc.liked, 'https://evanp.example/liked');
-      done();
-    });
+    
+    const result = await doc.export();
+
+    assert.equal(typeof(result), "object");
+    assert.equal(result.inbox, 'https://evanp.example/inbox');
+    assert.equal(result.outbox, 'https://evanp.example/outbox');
+    assert.equal(result.followers, 'https://evanp.example/followers');
+    assert.equal(result.following, 'https://evanp.example/following');
+    assert.equal(result.liked, 'https://evanp.example/liked');
   });
 });
 
@@ -944,7 +848,7 @@ describe('Streaming...', () => {
 
     fs.createReadStream(path.resolve(__dirname, 'test.json'))
       .pipe(new AS2Stream())
-      .pipe(through.obj((chunk, encoding, callback) => {
+      .pipe(through.obj((chunk) => {
         assert(chunk);
         assert(chunk.type);
         assert.equal(chunk.type, asv.Person);
@@ -959,7 +863,7 @@ describe('Streaming...', () => {
     var obj = as.object().name('test').get();
     obj.stream()
       .pipe(new AS2Stream())
-      .pipe(through.obj((chunk, encoding, callback) => {
+      .pipe(through.obj((chunk) => {
         assert(chunk);
         assert(chunk.type);
         assert.equal(chunk.name.valueOf(), 'test');
@@ -1045,30 +949,29 @@ describe('Extensions...', () => {
     done();
   });
   
-  it("should allow using .set() when the @context is an array", (done) => {
-    as.activity()
-    .context([
-        'https://www.w3.org/ns/activitystreams',
-        { vcard: 'http://www.w3.org/2006/vcard/ns#' }
-    ])
-    .actor(
-        as.person()
-            .name('Denis Prša')
-            .id('https://github.com/denisprsa')
-    )
-    .object(
-        as.offer()
-            .name('Thank you')
-            .id('https://github.com/jasnell/activitystrea.ms/issues/13#issuecomment-376722358')
-            .set('vcard:given-name', 'Thank')
-    )
-    .name('The offer')
-    .content('Evan offered his thanks to Denis for his bug report')
-    .set({h: 'd'})
-    .published(new Date())
-    .prettyWrite((err, string) => {
-      assert.equal(err, null);
-      done();
-    });
+  it("should allow using .set() when the @context is an array", async () => {
+    const string = await as.activity()
+      .context([
+          'https://www.w3.org/ns/activitystreams',
+          { vcard: 'http://www.w3.org/2006/vcard/ns#' }
+      ])
+      .actor(
+          as.person()
+              .name('Denis Prša')
+              .id('https://github.com/denisprsa')
+      )
+      .object(
+          as.offer()
+              .name('Thank you')
+              .id('https://github.com/jasnell/activitystrea.ms/issues/13#issuecomment-376722358')
+              .set('vcard:given-name', 'Thank')
+      )
+      .name('The offer')
+      .content('Evan offered his thanks to Denis for his bug report')
+      .set({h: 'd'})
+      .published(new Date())
+      .prettyWrite();
+
+    assert(string);
   })
 });

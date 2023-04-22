@@ -10,10 +10,6 @@ const _ordered = Symbol('ordered');
 const _items = Symbol('items');
 const slice = Array.prototype.slice;
 
-function isIterable(i) {
-  return i && (typeof i[Symbol.iterator] === 'function');
-}
-
 const Collection = composedType(undefined, {
   get totalItems() {
     const ret = range(0, Infinity, this.get(as.totalItems));

@@ -31,6 +31,7 @@ const CollectionPage = composedType(Collection, {
       configurable: false,
       value: prev
     });
+    return prev;
   }
 });
 

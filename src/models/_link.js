@@ -4,7 +4,6 @@ const range = require('../utils').range;
 const as = require('vocabs-as');
 const xsd = require('vocabs-xsd');
 const Base = require('./_base');
-const moment = require('moment');
 
 class Link extends Base {
   constructor(expanded, builder, environment) {

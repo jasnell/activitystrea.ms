@@ -283,7 +283,7 @@ class AS2 {
     return middle;
   }
 
-};
+}
 
 Object.defineProperties(AS2, {
   mediaType: {

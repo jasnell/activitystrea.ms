@@ -12,15 +12,16 @@
   },
   "license": "Apache-2.0",
   "scripts": {
-    "test": "mocha ./test/ --recursive"
+    "test": "mocha ./test/ --recursive",
+    "lint": "eslint ."
   },
   "dependencies": {
     "activitystreams-context": "^3.1.0",
-    "jsonld": "^1.8.1",
-    "jsonld-signatures": "^5.2.0",
-    "moment": "^2.29.1",
-    "readable-stream": "^2.2.3",
-    "reasoner": "2.0.0",
+    "jsonld": "^8.1.1",
+    "jsonld-signatures": "^11.1.0",
+    "moment": "^2.29.4",
+    "readable-stream": "^4.3.0",
+    "reasoner": "^3.0.0",
     "rfc5646": "^3.0.0",
     "vocabs-as": "^3.0.0",
     "vocabs-asx": "^0.11.1",
@@ -33,11 +34,16 @@
     "vocabs-xsd": "^0.11.1"
   },
   "devDependencies": {
-    "mocha": "^8.3.0",
-    "through2": "^3.0.2"
+    "@digitalbazaar/ed25519-signature-2020": "^5.2.0",
+    "@digitalbazaar/ed25519-verification-key-2020": "^4.1.0",
+    "@digitalbazaar/x25519-key-agreement-key-2020": "^3.0.1",
+    "crypto-ld": "^7.0.0",
+    "eslint": "^8.39.0",
+    "mocha": "^10.2.0",
+    "through2": "^4.0.2"
   },
   "main": "./src/activitystreams.js",
   "engines": {
-    "node": ">=14.15.4"
+    "node": ">=16.13.0"
   }
 }

@@ -52,11 +52,11 @@ class Environment {
     if (arguments.length > 0) {
       for (var n = 0; n < arguments.length; n++) {
         contexts[n] = arguments[n];
-        if ((contexts[n] === as.ns || contexts[n] === as_url_nohash) && !hasNs)
+        if ((contexts[n] === as.ns || contexts[n] === as_url_nohash) && !hasAs)
           hasAs = true;
       }
     }
-    if (!hasNs) contexts.push(as_url_nohash);
+    if (!hasAs) contexts.push(as_url_nohash);
     this[_defcontext] = contexts;
     return this;
   }
@@ -78,7 +78,7 @@ class Environment {
     var hasAs = false;
     for (var n = 0; n < arguments.length; n++) {
       contexts[n] = arguments[n];
-      if ((contexts[n] === as.ns || contexts[n] === as_url_nohash) && !hasNs)
+      if ((contexts[n] === as.ns || contexts[n] === as_url_nohash) && !hasAs)
         hasAs = true;
     }
     if (!hasAs) contexts.push(as_url_nohash);
