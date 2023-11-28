@@ -220,6 +220,7 @@ describe('Basics...', () => {
 
   it('should handle languages properly', async () => {
     var LanguageValue = require('../src/models/_languagevalue');
+    LanguageValue.SYSLANG = 'en-US';
     var B = new LanguageValue.Builder();
     B.set('en-US', 'bar');
     B.set('fr-US', 'baz');
@@ -237,9 +238,9 @@ describe('Basics...', () => {
   it('should roundtrip the RDF properly', async () => {
     var obj = as.object().name('test').get();
     const doc = await obj.toRDF();
-    
+
     assert(doc);
-    
+
     const doc2 = await as.importFromRDF(doc);
     assert.equal(doc2.name.get(), 'test');
   });
@@ -439,7 +440,7 @@ describe('Basics...', () => {
       width: 10,
     };
     const doc = await as.import(test);
-    
+
     assert(doc instanceof as.models.Link);
     assert.equal(doc.id, 'http://example.org');
     assert.equal(doc.href, 'http://example.org');
@@ -826,7 +827,7 @@ describe('Basics...', () => {
     assert.equal(doc.followers.first.id, 'https://evanp.example/followers');
     assert.equal(doc.following.first.id, 'https://evanp.example/following');
     assert.equal(doc.liked.first.id, 'https://evanp.example/liked');
-    
+
     const result = await doc.export();
 
     assert.equal(typeof(result), "object");
@@ -948,7 +949,7 @@ describe('Extensions...', () => {
     });
     done();
   });
-  
+
   it("should allow using .set() when the @context is an array", async () => {
     const string = await as.activity()
       .context([
