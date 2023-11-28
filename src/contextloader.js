@@ -1,8 +1,6 @@
 'use strict';
 
 const jsonld = require('jsonld')();
-const throwif = require('./utils').throwif;
-const checkCallback = require('./utils').checkCallback;
 const as = require('vocabs-as');
 const as_context = require('activitystreams-context');
 const securityContext = require('./jsig');
@@ -34,18 +32,17 @@ class Loader {
   }
   
   makeDocLoader() {
-    return (url, cb) => {
-      checkCallback(cb);
-      let context = this[_map][url];
+    return async (url) => {
+      const context = this[_map][url];
       if (context) {
-        return cb(null, {
+        return {
           contextUrl: null,
           document: context,
           documentUrl: url
-        });
-      } else {
-        default_doc_loader(url, cb);
+        };
       }
+
+      return default_doc_loader(url);
     };
   }
 }

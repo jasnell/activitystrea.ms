@@ -3,7 +3,6 @@
 const Base = require('./_base');
 const composedType = Base.composedType;
 const as = require('vocabs-as');
-const AsObject = require('./_object');
 
 const Relationship = composedType(undefined, {
   get subject() {

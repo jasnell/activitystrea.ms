@@ -2,10 +2,8 @@
 
 const Base = require('../models').Base;
 const composedType = Base.composedType;
-const AsObject = require('../models').Object;
 const utils = require('../utils');
 const range = utils.range;
-const xsd = require('vocabs-xsd');
 const social = require('vocabs-social');
 
 const Population = composedType(undefined, {

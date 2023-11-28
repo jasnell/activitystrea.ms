@@ -11,7 +11,7 @@ const social = require('vocabs-social');
 
 const Interested = composedType(Population, {
   get confidence() {
-    const ret = range(0,100,this.get(social.confidence));
+    const ret = range(0, 100, this.get(social.confidence));
     Object.defineProperty(this, 'confidence', {
       enumerable: true,
       configurable: false,
@@ -27,7 +27,7 @@ const InterestedBuilder = composedType(Population.Builder, {
       !is_integer(val),
       'confidence must be an integer between 0 and 100'
     );
-    this.set(social.confidence, range(0,100,val));
+    this.set(social.confidence, range(0, 100, val));
     return this;
   }
 });

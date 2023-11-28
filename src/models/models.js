@@ -2,15 +2,13 @@
 
 const as = require('vocabs-as');
 const reasoner = require('../reasoner');
-const utils = require('../utils');
-
 const _compose = Symbol('compose');
 
 var cache = Object.create(null);
 
 function core_recognizer(type) {
   let thing;
-  let node = reasoner.node(type);
+  const node = reasoner.node(type);
   if (node.is(as.OrderedCollectionPage)) {
     thing = exports.OrderedCollectionPage;
   } else if (node.is(as.CollectionPage)) {
@@ -40,7 +38,7 @@ var recognizers = [core_recognizer];
 function recognize(type) {
   let thing = cache[type];
   if (thing !== undefined) return thing;
-  for (let recognizer of recognizers) {
+  for (const recognizer of recognizers) {
     thing = recognizer(type);
     if (thing !== undefined) {
       cache[type] = thing;
@@ -198,8 +196,8 @@ module.exports = exports = {
 
   compose_builder(builder, types) {
     types = reasoner.reduce(types || []);
-    for (let type of types) {
-      let Thing = recognize(type);
+    for (const type of types) {
+      const Thing = recognize(type);
       if (Thing)
         builder[_compose](Thing.Builder);
     }
@@ -207,26 +205,26 @@ module.exports = exports = {
   
   compose_base(base, types) {
     types = reasoner.reduce(types || []);
-    for (let type of types) {
-      let Thing = recognize(type);
+    for (const type of types) {
+      const Thing = recognize(type);
       if (Thing)
         base[_compose](Thing);
     }
   },
 
   wrap_object(expanded, environment) {
-    let types = reasoner.reduce(expanded['@type'] || []);
+    const types = reasoner.reduce(expanded['@type'] || []);
     var is_link = false;
-    for (let type of types) {
-      let nodetype = reasoner.node(type);
+    for (const type of types) {
+      const nodetype = reasoner.node(type);
       if (nodetype.is(as.Link)) {
         is_link = true;
         break;
       }
     }
-    let Thing = is_link ?
+    const Thing = is_link ?
       exports.Link :
-      exports.Object ;
+      exports.Object;
     return new Thing(expanded, undefined, environment);
   },
 

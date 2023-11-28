@@ -1,7 +1,6 @@
 'use strict';
 
 const Collection = require('./_collection');
-const as = require('vocabs-as');
 const Base = require('./_base');
 const composedType = Base.composedType;
 

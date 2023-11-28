@@ -1,3 +1,8 @@
+## Modifications
+
+As required by the Apache license:
+Please note that all files dated 01/01/2021 & newer have been modified from the original...
+
 # Activity Streams 2.0
 
 Based on:
@@ -9,8 +14,6 @@ Includes experimental support for:
 
 * http://ns.jasnell.me/interval
 * http://ns.jasnell.me/social
-
-Starting with version `v0.8.0`, a minimum of Node v4.0.0 / ES6 is required.
 
 ## Getting Started
 
@@ -24,17 +27,14 @@ Starting with version `v0.8.0`, a minimum of Node v4.0.0 / ES6 is required.
 const as = require('activitystrea.ms');
 
 // Create a simple object
-as.object().
+const doc = await as.object().
   name('baz').
   content(
     as.langmap()
       .set('en', 'bar')
       .set('fr', 'foo')).
   publishedNow().
-  prettyWrite((err,doc) => {
-    if (err) throw err;
-    console.log(doc);
-  });
+  prettyWrite();
 ```
 
 Which produces the output:
@@ -54,13 +54,10 @@ Which produces the output:
 
 ```javascript
 // Create a simple activity
-as.create().
+const doc = await as.create().
   actor('acct:sally@example.org').
   object('http://www.example.org/post').
-  prettyWrite((err,doc) => {
-    if (err) throw err;
-    console.log(doc);
-  });
+  prettyWrite();
 ```
 
 Which produces the output:
@@ -220,27 +217,19 @@ To serialize the Activity Streams object out as JSON, use the `write`,
 ```javascript
 const as = require('activitystrea.ms');
 
-as.note().
+const doc = await as.note().
    name('foo').
    content('this is a simple note').
-   write((err, doc) => {
-     if (err) throw err;
-     // doc is a string
-     console.log(doc);
-   });
+   write();
 ```
 
 ```javascript
 const as = require('activitystrea.ms');
 
-as.note().
+const doc = await as.note().
    name('foo').
    content('this is a simple note').
-   prettyWrite((err, doc) => {
-     if (err) throw err;
-     // doc is a string
-     console.log(doc);
-   });
+   prettyWrite();
 ```
 
 ```javascript
@@ -252,9 +241,8 @@ as.object()
   .pipe(process.stdout);
 ```
 
-Note that The `export`, `write`, and `prettyWrite` methods are all async. You
-MUST pass in a callback function. This is largely because of the JSON-LD
-processing that's happening under the covers.
+Note that The `export`, `write`, and `prettyWrite` methods are all async and return promises.
+This is largely because of the JSON-LD processing that's happening under the covers.
 
 ## API
 
@@ -546,9 +534,9 @@ Returns true if the object has a value for the specified `key`
 
 Returns the value for the specified `key`. The return value will vary based on the property being requested. The return value can be a JavaScript primitive, a `as.models.Base` instance, or an Iterable  of JavaScript primitives or `as.models.Base` instances. Will returned `undefined` if the no value is specified for the given `key`
 
-#### Method: `<void> as.models.Base.prototype.export([options, ] callback)`
+#### Method: `<Promise> as.models.Base.prototype.export([options])`
 
-Exports the object by performing a JSON-LD compaction. If export fails, the callback will be called with the error as the first argument. If the export succeeds, the exported JavaScript object will be passed as the second argument of the callback.
+Exports the object by performing a JSON-LD compaction. If export fails, the promise will reject with the error. If the export succeeds, the promise will resolve with the exported JavaScript object.
 
 ```javascript
 const obj = as.object().name('Joe').get();
@@ -559,9 +547,9 @@ obj.export((err,exp) => {
 });
 ```
 
-#### Method: `<void> as.models.Base.prototype.write([options, ] callback)`
+#### Method: `<Promise> as.models.Base.prototype.write([options])`
 
-Write the object out to a JSON-LD string. If writing fails, the callback will will be called with the error as the first argument. If the write succeeds, the JSON-LD string will be passed as the second argument of the callback.
+Write the object out to a JSON-LD string. If writing fails, the promise will reject with the error. If the write succeeds, the promise will resolve with the JSON-LD string.
 
 ```javascript
 const obj = as.object().name('Joe').get();
@@ -571,9 +559,9 @@ obj.write((err,string) => {
 });
 ```
 
-#### Method: `<void> as.models.Base.prototype.prettyWrite([options, ] callback)`
+#### Method: `<Promise> as.models.Base.prototype.prettyWrite([options])`
 
-Write the object out to a JSON-LD string. If writing fails, the callback will will be called with the error as the first argument. If the write succeeds, the JSON-LD string will be passed as the second argument of the callback.
+Write the object out to a JSON-LD string. If writing fails, the promise will reject with the error. If the write succeeds, the promise will resolve with the JSON-LD string.
 
 ```javascript
 const obj = as.object().name('Joe').get();

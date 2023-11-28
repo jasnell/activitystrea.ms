@@ -4,7 +4,6 @@ const Base = require('../models/_base');
 const composedType = Base.composedType;
 const interval = require('vocabs-interval');
 const xsd = require('vocabs-xsd');
-const AsObject = require('../models').Object;
 const utils = require('../utils');
 const is_string = utils.is_string;
 const is_primitive = utils.is_primitive;
@@ -13,7 +12,7 @@ const is_date = utils.is_date;
 const is_boolean = utils.is_boolean;
 
 function _set(target, key, val) {
-  let options = {};
+  const options = {};
   if (is_primitive(val)) {
     if (is_string(val))
       options.type = xsd.string;

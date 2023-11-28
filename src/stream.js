@@ -1,15 +1,13 @@
 'use strict';
 
-const Transform = require('readable-stream/transform');
+const { Transform } = require('readable-stream');
 const as = require('./activitystreams');
 const ctx = require('activitystreams-context');
 const buf = Symbol('buffer');
 
 class AS2Stream extends Transform {
-  constructor(options) {
-    options = options || {};
-    options.objectMode = true;
-    super(options);
+  constructor(options = {}) {
+    super({ ...options, objectMode: true });
     this[buf] = '';
   }
 
@@ -20,14 +18,13 @@ class AS2Stream extends Transform {
 
   _flush(callback) {
     try {
-      let res = JSON.parse(this[buf]);
+      const res = JSON.parse(this[buf]);
       this[buf] = '';
       res['@context'] = res['@context'] || ctx;
-      as.import(res, (err, obj) => {
-        if (err) return callback(err);
+      as.import(res).then((obj) => {
         this.push(obj);
         callback();
-      });
+      }, callback);
     } catch (err) {
       callback(err);
     }

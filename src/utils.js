@@ -1,17 +1,10 @@
 'use strict';
 
-const url = require('url');
 const moment = require('moment');
 const xsd = require('vocabs-xsd');
 const _toString = {}.toString;
 
 class Utils {
-
-  static checkCallback(callback) {
-    Utils.throwif(
-      typeof callback !== 'function',
-      'A callback function must be provided');
-  }
 
   static throwif(condition, message) {
     if (condition) throw Error(message);
@@ -57,8 +50,8 @@ class Utils {
 
   static set_date_val(key, val) {
     Utils.throwif(!Utils.is_date(val), `${key} must be a date`);
-    let fmt = moment.isMoment(val) ? val.format() : val.toISOString();
-    this.set(key, fmt,{type:xsd.dateTime});
+    const fmt = moment.isMoment(val) ? val.format() : val.toISOString();
+    this.set(key, fmt, {type: xsd.dateTime});
   }
 
   static set_ranged_val(key, val, min, max, type) {

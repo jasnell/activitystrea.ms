@@ -1,29 +1,13 @@
 'use strict';
 
 const jsonld = require('jsonld')();
-const jsig = require('jsonld-signatures')({inject:{jsonld:jsonld}});
-const throwif = require('./utils').throwif;
-const checkCallback = require('./utils').checkCallback;
+const jsig = require('jsonld-signatures');
 const as_context = require('activitystreams-context');
-const securityContext = require('./jsig');
 const ext_context = require('./extcontext');
 const models = require('./models');
-const as = require('vocabs-as');
 const Environment = require('./environment');
 const Loader = require('./contextloader');
 const as_url_nohash = 'https://www.w3.org/ns/activitystreams';
-
-var warned = false;
-function warn() {
-  if (!warned) {
-    const warnfn = typeof process.emitWarning === 'function' ?
-        process.emitWarning : console.warn;
-    warnfn(
-      'Warning: JSON-LD Signatures are still experimental. ' +
-      'Use in production environments is not recommended');
-    warned = true;
-  }
-}
 
 jsonld.documentLoader = (new Loader()).makeDocLoader();
 
@@ -32,7 +16,7 @@ function getContext(options) {
     return {'@context': options.origContext};
   } else {
     let ctx = [];
-    let ext = ext_context.get();
+    const ext = ext_context.get();
     if (ext)
       ctx = ctx.concat(ext);
     if (options && options.sign)
@@ -46,87 +30,58 @@ function getContext(options) {
 
 class JsonLD {
 
-  static normalize(expanded, options, callback) {
-    if (typeof options === 'function') {
-      callback = options;
-      options = {};
-    }
-    options = options || {};
-    checkCallback(callback);
-    jsonld.normalize(
-      expanded,
-      {format:'application/nquads'},
-      (err,doc)=> {
-        if (err) return callback(err);
-        callback(null,doc);
-      });
-  }
-
-  static compact(expanded, options, callback) {
-    if (typeof options === 'function') {
-      callback = options;
-      options = {};
-    }
-    options = options || {};
-    checkCallback(callback);
-    let _context = getContext(options);
-    jsonld.compact(
-      expanded, _context, {},
-      (err, doc)=> {
-        if (err) return callback(err);
-        if (typeof options.sign === 'object') {
-          warn();
-          jsig.sign(doc,options.sign,callback);
-        } else {
-          callback(null, doc);
-        }
-      });
-  }
-
-  static verify(input, options, callback) {
-    warn();
-    if (typeof input === 'string')
-      input = JSON.parse(input);
-    checkCallback(callback);
-    jsig.verify(input, options, callback);
-  }
-
-  static import(input, options, callback) {
-    if (typeof options === 'function') {
-      callback = options;
-      options = {};
-    }
-    checkCallback(callback);
-    let environment = options.environment || new Environment(input);
-    if (!(environment instanceof Environment))
-      environment = new Environment(input);
-    environment.applyAssumedContext(input);
-    jsonld.expand(
-      input, {
-        expandContext: as_context,
-        documentLoader: environment.loader.makeDocLoader(),
-        keepFreeFloatingNodes: true
-      },
-      (err,expanded)=> {
-        if (err) return callback(err);
-        if (expanded && expanded.length > 0) {
-          let object = models.wrap_object(expanded[0], environment);
-          callback(null,object);
-        } else {
-          callback(null,null);
-        }
-      }
-    );
-  }
-
-  static importFromRDF(input, callback) {
-    checkCallback(callback);
-    jsonld.fromRDF(input, {format:'application/nquads'},
-    (err, expanded)=> {
-      if (err) return callback(err);
-      let base = models.wrap_object(expanded[0]);
-      callback(null, base);
+  static async normalize(expanded, options = {}) {
+    return jsonld.canonize(expanded, {
+      format: 'application/nquads',
+      ...options
     });
+  }
+
+  static async compact(expanded, options = {}) {
+    const _context = getContext(options);
+    const doc = await jsonld.compact(
+      expanded, _context, {}
+    );
+
+    if (typeof options.sign === 'object') {
+      return jsig.sign(doc, {
+        documentLoader: jsonld.documentLoader,
+        ...options.sign
+      });
+    }
+
+    return doc;
+  }
+
+  static async verify(input, options = {}) {
+    if (typeof input === 'string') {
+      input = JSON.parse(input);
+    }
+    return jsig.verify(input, options);
+  }
+
+  static async import(input, options = {}) {
+    let environment = options.environment || new Environment(input);
+    if (!(environment instanceof Environment)) {
+      environment = new Environment(input);
+    }
+    environment.applyAssumedContext(input);
+    const expanded = await jsonld.expand(input, {
+      expandContext: as_context,
+      documentLoader: environment.loader.makeDocLoader(),
+      keepFreeFloatingNodes: true
+    });
+
+    if (expanded && expanded.length > 0) {
+      return models.wrap_object(expanded[0], environment);
+    }
+
+    return null;
+  }
+
+  static async importFromRDF(input) {
+    const expanded = await jsonld.fromRDF(input, {format: 'application/nquads'});
+    return models.wrap_object(expanded[0]);
   }
 }
 

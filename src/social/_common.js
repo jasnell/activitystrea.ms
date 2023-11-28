@@ -7,7 +7,6 @@ const utils = require('../utils');
 const range = utils.range;
 const is_integer = utils.is_integer;
 const throwif = utils.throwif;
-const xsd = require('vocabs-xsd');
 const Population = require('./_population');
 
 const Common = composedType(Population, {

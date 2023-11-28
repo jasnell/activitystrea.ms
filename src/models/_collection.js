@@ -2,29 +2,23 @@
 
 const range = require('../utils').range;
 const throwif = require('../utils').throwif;
-const AsObject = require('./_object');
 const Base = require('./_base');
 const as = require('vocabs-as');
 const xsd = require('vocabs-xsd');
 const composedType = Base.composedType;
-
 const _ordered = Symbol('ordered');
 const _items = Symbol('items');
 const slice = Array.prototype.slice;
 
-function isIterable(i) {
-  return i && (typeof i[Symbol.iterator] === 'function');
-}
-
 const Collection = composedType(undefined, {
   get totalItems() {
-    let ret = range(0, Infinity, this.get(as.totalItems));
+    const ret = range(0, Infinity, this.get(as.totalItems));
     Object.defineProperty(this, 'totalItems', {
       enumerable: true,
       configurable: false,
       value: isNaN(ret) ? 0 : ret
     });
-    return isNaN(ret) ? 0 : ret ;
+    return isNaN(ret) ? 0 : ret;
   },
   get current() {
     const current = this.get(as.current);
@@ -111,7 +105,7 @@ const CollectionBuilder = composedType(undefined, {
     }
     this[_items].set('@list', val);
     if (set)
-      this.set(as.items,this[_items].get());
+      this.set(as.items, this[_items].get());
     return this;
   },
   get ordered() {
