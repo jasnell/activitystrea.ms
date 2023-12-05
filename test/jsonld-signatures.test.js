@@ -17,10 +17,10 @@ describe('Extensions...', () => {
     cryptoLd.use(X25519KeyAgreementKey2020);
 
     const keyPair = await cryptoLd.generate({ type: 'Ed25519VerificationKey2020' });
+    const now = new Date();
 
     const suite = new Ed25519Signature2020({ key: keyPair });
-    suite.date = '2010-01-01T19:23:24Z';
-
+    suite.date = now.toISOString().split('.')[0] + 'Z';
 
     var obj = as.object().name('foo').get();
 
