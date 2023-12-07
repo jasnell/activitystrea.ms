@@ -30,14 +30,14 @@ npm test
 const as = require('activitystrea.ms');
 
 // Create a simple object
-const doc = await as.object().
+const doc = as.object().
   name('baz').
   content(
     as.langmap()
       .set('en', 'bar')
       .set('fr', 'foo')).
   publishedNow().
-  prettyWrite();
+  prettyWrite().then(console.log);
 ```
 
 Which produces the output:
@@ -51,7 +51,7 @@ Which produces the output:
     "fr": "foo"
   },
   "name": "baz",
-  "published": "2015-07-17T00:50:09.889Z"
+  "published": "2023-12-07T22:22:43Z"
 }
 ```
 
