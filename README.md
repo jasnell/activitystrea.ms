@@ -10,16 +10,19 @@ Based on:
 * http://www.w3.org/TR/activitystreams-core
 * http://www.w3.org/TR/activitystreams-vocabulary
 
-Includes experimental support for:
-
-* http://ns.jasnell.me/interval
-* http://ns.jasnell.me/social
-
 ## Getting Started
 
 ### Installation
 
-`npm install activitystrea.ms`
+```
+npm install activitystrea.ms
+```
+
+Run the tests
+
+```
+npm test
+```
 
 ### Usage
 
