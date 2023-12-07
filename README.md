@@ -57,11 +57,18 @@ Which produces the output:
 ```
 
 ```javascript
+const as = require('activitystrea.ms');
+
 // Create a simple activity
-const doc = await as.create().
-  actor('acct:sally@example.org').
-  object('http://www.example.org/post').
-  prettyWrite();
+async function getActivity() {
+  const doc = await as.create().
+    actor('acct:sally@example.org').
+    object('http://www.example.org/post').
+    prettyWrite();
+  console.log(doc);
+}
+
+getActivity();
 ```
 
 Which produces the output:
