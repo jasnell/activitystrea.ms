@@ -1,6 +1,7 @@
 ## Modifications
 
-As required by the Apache license:
+As required by the [Apache-2.0 license](https://github.com/socialatm/activitystrea.ms/blob/master/LICENSE):
+
 Please note that all files dated 01/01/2021 & newer have been modified from the original...
 
 # Activity Streams 2.0
