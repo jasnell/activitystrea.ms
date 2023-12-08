@@ -105,7 +105,7 @@ as.object()
   .pipe(process.stdout);
 ```
 
-## API
+## Factory Patterns
 
 The API uses a fluent factory pattern for creating AS objects. There are
 factory methods for each of the main types of objects defined by the Activity
