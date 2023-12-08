@@ -105,6 +105,8 @@ as.object()
   .pipe(process.stdout);
 ```
 
+## API
+
 The API uses a fluent factory pattern for creating AS objects. There are
 factory methods for each of the main types of objects defined by the Activity
 Streams 2.0 vocabulary. Each takes an optional array of types that will be set
