@@ -1,6 +1,7 @@
 ## Modifications
 
-As required by the Apache license:
+As required by the [Apache-2.0 license](https://github.com/socialatm/activitystrea.ms/blob/master/LICENSE):
+
 Please note that all files dated 01/01/2021 & newer have been modified from the original...
 
 # Activity Streams 2.0
@@ -10,16 +11,19 @@ Based on:
 * http://www.w3.org/TR/activitystreams-core
 * http://www.w3.org/TR/activitystreams-vocabulary
 
-Includes experimental support for:
-
-* http://ns.jasnell.me/interval
-* http://ns.jasnell.me/social
-
 ## Getting Started
 
 ### Installation
 
-`npm install activitystrea.ms`
+```
+npm install activitystrea.ms
+```
+
+Run the tests
+
+```
+npm test
+```
 
 ### Usage
 
@@ -27,14 +31,14 @@ Includes experimental support for:
 const as = require('activitystrea.ms');
 
 // Create a simple object
-const doc = await as.object().
+const doc = as.object().
   name('baz').
   content(
     as.langmap()
       .set('en', 'bar')
       .set('fr', 'foo')).
   publishedNow().
-  prettyWrite();
+  prettyWrite().then(console.log);
 ```
 
 Which produces the output:
@@ -48,16 +52,23 @@ Which produces the output:
     "fr": "foo"
   },
   "name": "baz",
-  "published": "2015-07-17T00:50:09.889Z"
+  "published": "2023-12-07T22:22:43Z"
 }
 ```
 
 ```javascript
+const as = require('activitystrea.ms');
+
 // Create a simple activity
-const doc = await as.create().
-  actor('acct:sally@example.org').
-  object('http://www.example.org/post').
-  prettyWrite();
+async function getActivity() {
+  const doc = await as.create().
+    actor('acct:sally@example.org').
+    object('http://www.example.org/post').
+    prettyWrite();
+  console.log(doc);
+}
+
+getActivity();
 ```
 
 Which produces the output:
@@ -93,6 +104,8 @@ as.object()
   .get()
   .pipe(process.stdout);
 ```
+
+## Factory Patterns
 
 The API uses a fluent factory pattern for creating AS objects. There are
 factory methods for each of the main types of objects defined by the Activity

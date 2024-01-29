@@ -17,10 +17,10 @@
   },
   "dependencies": {
     "activitystreams-context": "^3.1.0",
-    "jsonld": "^8.1.1",
-    "jsonld-signatures": "^11.1.0",
+    "jsonld": "^8.3.1",
+    "jsonld-signatures": "^11.2.1",
     "moment": "^2.29.4",
-    "readable-stream": "^4.3.0",
+    "readable-stream": "^4.4.2",
     "reasoner": "^3.0.0",
     "rfc5646": "^3.0.0",
     "vocabs-as": "^3.0.0",
@@ -38,7 +38,7 @@
     "@digitalbazaar/ed25519-verification-key-2020": "^4.1.0",
     "@digitalbazaar/x25519-key-agreement-key-2020": "^3.0.1",
     "crypto-ld": "^7.0.0",
-    "eslint": "^8.39.0",
+    "eslint": "^8.55.0",
     "mocha": "^10.2.0",
     "through2": "^4.0.2"
   },
