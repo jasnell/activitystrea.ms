@@ -9,7 +9,7 @@ const Environment = require('./environment');
 const Loader = require('./contextloader');
 const as_url_nohash = 'https://www.w3.org/ns/activitystreams';
 
-jsonld.documentLoader = (new Loader()).makeDocLoader();
+jsonld.documentLoader = Loader.defaultInstance.makeDocLoader();
 
 function getContext(options) {
   if (options.useOriginalContext && options.origContext) {
