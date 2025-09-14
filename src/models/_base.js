@@ -60,7 +60,7 @@ class ValueIterator {
     this[_items] = items;
     this[kEnvironment] = environment;
   }
-  
+
   *[Symbol.iterator] () {
     for (const item of this[_items]) {
       if (is_literal(item)) {
@@ -229,7 +229,7 @@ class Base {
   async export(options = {}) {
     if (options.useOriginalContext) {
       options.origContext =
-        this[kEnvironment].origContext;
+        this[kEnvironment].originalContext;
     }
     const handler = options.handler || jsonld.compact;
     return handler(
