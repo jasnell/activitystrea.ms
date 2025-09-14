@@ -2,6 +2,7 @@
 
 const reasoner = require('./reasoner');
 const jsonld = require('./jsonld');
+const Loader = require('./contextloader');
 const ext_context = require('./extcontext');
 const as = require('vocabs-as');
 const models = require('./models');
@@ -23,6 +24,10 @@ class AS2 {
   static use(extension) {
     if (extension && typeof extension.init === 'function')
       extension.init(models, reasoner, ext_context);
+  }
+
+  static registerContext (url, context) {
+    Loader.defaultInstance.register(url, context);
   }
 
   static langmap() {
